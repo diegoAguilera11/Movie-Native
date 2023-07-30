@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Dimensions, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, Image, StyleSheet, Dimensions, ScrollView, ActivityIndicator, Platform, TouchableOpacity } from 'react-native';
 // import { Movie } from '../interfaces/movieInterface';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../navigation/Navigation';
@@ -7,21 +7,27 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useMovieDetails } from '../hooks/useMovieDetails';
 import MovieDetails from '../components/MovieDetails';
 const screenHeight = Dimensions.get('screen').height;
+const screenWidth = Dimensions.get('screen').width;
+import { useNavigation } from '@react-navigation/native';
 
 interface Props extends StackScreenProps<RootStackParams, 'DetailScreen'> { }
 
 
 export const DetailScreen = ({ route }: Props) => {
 
+  const navigation = useNavigation();
   const movie = route.params;
   const uri = `https://image.tmdb.org/t/p/w500${movie.poster_path}`;
 
   const { isLoading, movieFull, cast } = useMovieDetails(movie.id);
 
-  console.log({ movieFull });
+  // console.log({ movieFull });
 
   return (
-    <ScrollView>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      style={{ flex: 1 }}
+    >
       <View style={styles.imageContainer}>
         <Image
           source={{ uri }}
@@ -32,6 +38,7 @@ export const DetailScreen = ({ route }: Props) => {
         <Text style={styles.subTitle}>{movie.original_title}</Text>
         <Text style={styles.title}>{movie.title}</Text>
       </View>
+      <View>
         {
           isLoading
             ? <ActivityIndicator
@@ -39,8 +46,21 @@ export const DetailScreen = ({ route }: Props) => {
               color="blue"
               style={{ marginVertical: 20 }}
             />
-            : <MovieDetails movieFull={movieFull!} cast={cast}/>
+            : <MovieDetails movieFull={movieFull!} cast={cast} />
         }
+      </View>
+
+      {/* Button return */}
+      <TouchableOpacity 
+        onPress={() => navigation.goBack()}
+        style={styles.backButton}
+      >
+        <Icon
+          name="arrow-back-outline"
+          color="white"
+          size={50}
+        />
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -78,4 +98,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
+  backButton: {
+    backgroundColor: '#444444',
+    borderRadius: 100,
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    zIndex: 1,
+  }
 });
